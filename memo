@@ -14,3 +14,101 @@ ReviewSchedule
 Like (보조)
 Follow/Stat (보조)
 */
+
+[html 코드 시각화]
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Re:View</title>
+  <style>
+    body { font-family: Arial; margin: 0; background: #f5f5f5; }
+    header { background: #333; color: white; padding: 15px; }
+    nav { background: #555; padding: 10px; }
+    nav a { color: white; margin-right: 15px; text-decoration: none; }
+    .container { padding: 20px; }
+    .card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Re:View - 오답 노트 플랫폼</h1>
+</header>
+
+<nav>
+  <a href="#home">홈</a>
+  <a href="#wrong">오답 게시판</a>
+  <a href="#write">오답 작성</a>
+  <a href="#question">질문 게시판</a>
+  <a href="#profile">프로필</a>
+  <a href="#analysis">분석</a>
+</nav>
+
+<div class="container" id="home">
+  <h2>홈페이지</h2>
+  <div class="card">
+    <h3>최근 오답</h3>
+    <p>수학 - 확률 문제 (계산 실수)</p>
+  </div>
+</div>
+
+<div class="container" id="wrong">
+  <h2>오답 게시판</h2>
+  <div class="card">
+    <p>문제: 미적분 문제</p>
+    <p>오답 유형: 계산 실수</p>
+    <button>좋아요</button>
+  </div>
+</div>
+
+<div class="container" id="write">
+  <h2>오답 작성</h2>
+  <form>
+    <label>과목:</label><br>
+    <input type="text"><br><br>
+
+    <label>문제 설명:</label><br>
+    <textarea></textarea><br><br>
+
+    <label>오답 이유:</label><br>
+    <textarea></textarea><br><br>
+
+    <label>오답 유형:</label><br>
+    <input type="checkbox"> 계산 실수
+    <input type="checkbox"> 개념 부족
+    <input type="checkbox"> 해석 오류
+    <input type="checkbox"> 발상 실패
+    <br><br>
+
+    <button type="submit">등록</button>
+  </form>
+</div>
+
+<div class="container" id="question">
+  <h2>질문 게시판</h2>
+  <div class="card">
+    <p>질문: 이 문제 어떻게 풀어요?</p>
+    <button>답변 보기</button>
+  </div>
+</div>
+
+<div class="container" id="profile">
+  <h2>내 오답 노트</h2>
+  <div class="card">
+    <p>내가 틀린 문제 목록</p>
+  </div>
+</div>
+
+<div class="container" id="analysis">
+  <h2>분석 페이지</h2>
+  <div class="card">
+    <p>계산 실수: 5회</p>
+    <p>개념 부족: 3회</p>
+  </div>
+</div>
+
+</body>
+</html>
