@@ -1,0 +1,23 @@
+<%- include('partials/header') %>
+
+<div style="text-align: center; padding: 50px 0;">
+    <h2>나만의 오답 노트, Re:View</h2>
+    <p>틀린 문제를 기록하고, 분석하고, 공유하세요.</p>
+    <div style="margin-top: 30px;">
+        <a href="/write" class="btn">오답 작성하기</a>
+        <a href="/board" class="btn" style="background: #28a745;">다른 사람 오답 보기</a>
+    </div>
+</div>
+
+<div style="display: flex; gap: 20px; margin-top: 40px;">
+    <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+        <h3>📌 최신 오답 리스트</h3>
+        <p>로그인 후 최근에 작성한 오답을 확인하세요.</p>
+    </div>
+    <div style="flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+        <h3>📈 학습 분석</h3>
+        <p>내가 자주 틀리는 유형을 분석해 드립니다.</p>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

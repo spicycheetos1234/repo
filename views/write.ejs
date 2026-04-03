@@ -1,0 +1,44 @@
+<%- include('partials/header') %>
+
+<h2>📝 오답 노트 작성</h2>
+<p>틀린 문제를 기록하고 원인을 분석해 보세요.</p>
+
+<form action="/write" method="POST" style="max-width: 600px; margin-top: 20px;">
+    <div style="margin-bottom: 15px;">
+        <label for="title" style="display: block; font-weight: bold;">문제 제목</label>
+        <input type="text" id="title" name="title" required placeholder="예: 수학 익힘책 15페이지 4번" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label for="problem_image_url" style="display: block; font-weight: bold;">문제 이미지 (이미지 주소)</label>
+        <input type="text" id="problem_image_url" name="problem_image_url" placeholder="http://..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+        <small style="color: #666;">* 지금은 외부 이미지 주소를 사용해 주세요.</small>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label for="reason_id" style="display: block; font-weight: bold;">오답 원인</label>
+        <select id="reason_id" name="reason_id" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            <option value="1">1. 계산 실수</option>
+            <option value="2">2. 문제 해석 오류</option>
+            <option value="3">3. 개념 부족</option>
+            <option value="4">4. 발상 실패</option>
+            <option value="5">5. 시간 부족</option>
+            <option value="0">기타</option>
+        </select>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label for="solution" style="display: block; font-weight: bold;">나의 풀이 및 정답</label>
+        <textarea id="solution" name="solution" rows="5" placeholder="틀린 이유와 올바른 풀이 과정을 적어주세요." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label>
+            <input type="checkbox" name="is_public" checked> 다른 사용자에게 공개
+        </label>
+    </div>
+
+    <button type="submit" class="btn" style="width: 100%;">저장하기</button>
+</form>
+
+<%- include('partials/footer') %>

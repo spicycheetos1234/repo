@@ -1,0 +1,37 @@
+<%- include('partials/header') %>
+
+<h2>📚 오답 게시판</h2>
+<p>다른 학생들의 오답 노트를 보며 함께 공부해요.</p>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+    <% if (notes.length === 0) { %>
+        <p>아직 작성된 오답이 없습니다. 첫 번째 오답을 작성해 보세요!</p>
+    <% } else { %>
+        <% notes.forEach(note => { %>
+            <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <% if (note.problem_image_url) { %>
+                    <img src="<%= note.problem_image_url %>" alt="문제 이미지" style="width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid #eee;">
+                <% } %>
+                <div style="padding: 15px;">
+                    <h3 style="margin: 0 0 10px 0;"><%= note.title %></h3>
+                    <p style="font-size: 0.9em; color: #555;">
+                        <strong>원인:</strong> 
+                        <%= 
+                            {
+                                1: '계산 실수', 2: '문제 해석 오류', 3: '개념 부족', 4: '발상 실패', 5: '시간 부족', 0: '기타'
+                            }[note.reason_id] || '미지정'
+                        %>
+                    </p>
+                    <p style="font-size: 0.9em; color: #333; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <%= note.solution %>
+                    </p>
+                    <div style="margin-top: 15px; font-size: 0.8em; color: #999;">
+                        <%= new Date(note.created_at).toLocaleDateString() %>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>
