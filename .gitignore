@@ -1,0 +1,6 @@
+node_modules/
+.env
+design-preview.html
+design-preview-bw.html
+.vscode/
+*.log

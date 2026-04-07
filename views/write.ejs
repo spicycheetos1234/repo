@@ -1,44 +1,64 @@
-<%- include('partials/header') %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re:View - 오답 작성</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/" class="logo">Re:View</a>
+            <div class="nav-links">
+                <a href="/board">게시판</a>
+                <a href="/write">오답작성</a>
+                <a href="#">분석</a>
+            </div>
+        </nav>
 
-<h2>📝 오답 노트 작성</h2>
-<p>틀린 문제를 기록하고 원인을 분석해 보세요.</p>
+        <h1>새 오답 작성</h1>
 
-<form action="/write" method="POST" style="max-width: 600px; margin-top: 20px;">
-    <div style="margin-bottom: 15px;">
-        <label for="title" style="display: block; font-weight: bold;">문제 제목</label>
-        <input type="text" id="title" name="title" required placeholder="예: 수학 익힘책 15페이지 4번" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+        <div class="card" style="padding: 40px; margin-top: 20px;">
+            <form action="/write" method="POST">
+                <div class="form-group">
+                    <label for="title">문제 제목</label>
+                    <input type="text" id="title" name="title" placeholder="예: 미적분 22번 (수능특강)" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="reason_id">틀린 원인</label>
+                    <select id="reason_id" name="reason_id" required>
+                        <option value="1">계산 실수</option>
+                        <option value="2">문제 해석 오류</option>
+                        <option value="3">개념 부족</option>
+                        <option value="4">발상 실패</option>
+                        <option value="5">시간 부족</option>
+                        <option value="0">기타</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="problem_image_url">문제 이미지 URL (선택)</label>
+                    <input type="text" id="problem_image_url" name="problem_image_url" placeholder="https://...">
+                </div>
+
+                <div class="form-group">
+                    <label for="solution">나의 풀이 및 보완할 점</label>
+                    <textarea id="solution" name="solution" rows="8" placeholder="틀린 과정과 정답을 기록하세요..." required></textarea>
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="is_public" name="is_public" checked style="width: auto;">
+                    <label for="is_public" style="margin: 0;">다른 학생과 공유하기</label>
+                </div>
+
+                <div class="btn-group" style="justify-content: flex-start; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary">오답 저장하기</button>
+                    <a href="/board" class="btn btn-secondary">취소</a>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div style="margin-bottom: 15px;">
-        <label for="problem_image_url" style="display: block; font-weight: bold;">문제 이미지 (이미지 주소)</label>
-        <input type="text" id="problem_image_url" name="problem_image_url" placeholder="http://..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-        <small style="color: #666;">* 지금은 외부 이미지 주소를 사용해 주세요.</small>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <label for="reason_id" style="display: block; font-weight: bold;">오답 원인</label>
-        <select id="reason_id" name="reason_id" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-            <option value="1">1. 계산 실수</option>
-            <option value="2">2. 문제 해석 오류</option>
-            <option value="3">3. 개념 부족</option>
-            <option value="4">4. 발상 실패</option>
-            <option value="5">5. 시간 부족</option>
-            <option value="0">기타</option>
-        </select>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <label for="solution" style="display: block; font-weight: bold;">나의 풀이 및 정답</label>
-        <textarea id="solution" name="solution" rows="5" placeholder="틀린 이유와 올바른 풀이 과정을 적어주세요." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <label>
-            <input type="checkbox" name="is_public" checked> 다른 사용자에게 공개
-        </label>
-    </div>
-
-    <button type="submit" class="btn" style="width: 100%;">저장하기</button>
-</form>
-
-<%- include('partials/footer') %>
+</body>
+</html>
