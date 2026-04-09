@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re:View - <%= note.title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/" class="logo">Re:View</a>
+            <div class="nav-links">
+                <a href="/board">게시판</a>
+                <a href="/write">오답작성</a>
+                <a href="/profile">마이페이지</a>
+            </div>
+        </nav>
+
+        <article class="post-detail">
+            <header style="margin-bottom: 40px;">
+                <span class="tag"><%= note.type_name || '기타' %></span>
+                <h1 style="text-align: left; margin-top: 10px;"><%= note.title %></h1>
+                <div style="color: #666; font-size: 0.9rem;">
+                    작성자: <strong><%= note.username %></strong> | 
+                    작성일: <%= new Date(note.created_at).toLocaleDateString() %>
+                </div>
+            </header>
+
+            <% if (note.problem_image_url) { %>
+                <div class="problem-image" style="margin-bottom: 40px;">
+                    <img src="<%= note.problem_image_url %>" alt="문제 이미지" style="max-width: 100%; border-radius: 16px; border: 1px solid #eee;">
+                </div>
+            <% } %>
+
+            <div class="card" style="padding: 40px; background: #fff; line-height: 1.8;">
+                <h3 style="margin-top: 0; border-bottom: 2px solid #000; padding-bottom: 10px; display: inline-block;">나의 풀이 및 분석</h3>
+                <p style="white-space: pre-wrap; margin-top: 20px;"><%= note.solution %></p>
+            </div>
+
+            <div class="btn-group" style="justify-content: flex-start; margin-top: 40px;">
+                <a href="/board" class="btn btn-secondary">목록으로 돌아가기</a>
+                <% if (user && user.id === note.user_id) { %>
+                    <button class="btn btn-primary">수정하기</button>
+                <% } %>
+            </div>
+        </article>
+    </div>
+</body>
+</html>

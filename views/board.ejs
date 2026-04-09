@@ -12,31 +12,40 @@
             <a href="/" class="logo">Re:View</a>
             <div class="nav-links">
                 <a href="/board">게시판</a>
-                <a href="/write">오답작성</a>
-                <a href="#">분석</a>
+                <% if (user) { %>
+                    <a href="/write">오답작성</a>
+                    <a href="/profile">마이페이지</a>
+                    <a href="/logout">로그아웃</a>
+                <% } else { %>
+                    <a href="/login">로그인</a>
+                <% } %>
             </div>
         </nav>
 
-        <h1>오답 게시판</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <h1>오답 게시판</h1>
+            <% if (user) { %>
+                <a href="/write" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.9rem;">새 오답 작성</a>
+            <% } %>
+        </div>
 
         <div class="notes-list">
             <% if (notes && notes.length > 0) { %>
-                <% notes.forEach(note => { %>
-                    <div class="card">
-                        <span class="tag">
-                            <% if (note.reason_id == 1) { %>계산 실수<% } 
-                               else if (note.reason_id == 2) { %>해석 오류<% } 
-                               else if (note.reason_id == 3) { %>개념 부족<% } 
-                               else if (note.reason_id == 4) { %>발상 실패<% } 
-                               else { %>기타<% } %>
-                        </span>
-                        <h3><%= note.title %></h3>
-                        <p><%= note.solution.substring(0, 100) %><%= note.solution.length > 100 ? '...' : '' %></p>
-                        <div style="margin-top: 15px; font-size: 0.8rem; color: #999;">
-                            등록일: <%= new Date(note.created_at).toLocaleDateString() %>
-                        </div>
-                    </div>
-                <% }); %>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <% notes.forEach(note => { %>
+                        <a href="/post/<%= note.id %>" class="card">
+                            <span class="tag">
+                                <%= note.type_name || '기타' %>
+                            </span>
+                            <h3><%= note.title %></h3>
+                            <p><%= note.solution.substring(0, 80) %><%= note.solution.length > 80 ? '...' : '' %></p>
+                            <div style="margin-top: 15px; font-size: 0.8rem; color: #999; display: flex; justify-content: space-between;">
+                                <span>작성자: <%= note.username || '익명' %></span>
+                                <span><%= new Date(note.created_at).toLocaleDateString() %></span>
+                            </div>
+                        </a>
+                    <% }); %>
+                </div>
             <% } else { %>
                 <div class="card" style="text-align: center; padding: 60px;">
                     <p>아직 등록된 오답 노트가 없습니다. 첫 번째 노트를 작성해 보세요!</p>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re:View - 내 오답 아카이브</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/" class="logo">Re:View</a>
+            <div class="nav-links">
+                <a href="/board">게시판</a>
+                <a href="/write">오답작성</a>
+                <a href="/logout">로그아웃</a>
+            </div>
+        </nav>
+
+        <header style="margin-bottom: 50px;">
+            <h1>내 오답 아카이브</h1>
+            <p style="color: #666; text-align: center;">사용자: <strong><%= user.username %></strong>님, 지금까지 총 <strong><%= notes.length %>개</strong>의 오답을 기록하셨습니다.</p>
+        </header>
+
+        <div class="stats-grid" style="margin-bottom: 60px;">
+            <div class="stat-box">
+                <span class="val"><%= notes.length %></span>
+                <span class="lbl">기록한 오답</span>
+            </div>
+            <div class="stat-box dark">
+                <span class="val">Lv. <%= Math.floor(notes.length / 5) + 1 %></span>
+                <span class="lbl">나의 기록 레벨</span>
+            </div>
+        </div>
+
+        <section>
+            <h2 style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px;">내가 작성한 글</h2>
+            <div class="notes-list">
+                <% if (notes && notes.length > 0) { %>
+                    <% notes.forEach(note => { %>
+                        <a href="/post/<%= note.id %>" class="card">
+                            <span class="tag"><%= note.type_name || '기타' %></span>
+                            <h3><%= note.title %></h3>
+                            <p><%= note.solution.substring(0, 100) %>...</p>
+                            <div style="margin-top: 15px; font-size: 0.8rem; color: #999;">
+                                등록일: <%= new Date(note.created_at).toLocaleDateString() %>
+                            </div>
+                        </a>
+                    <% }); %>
+                <% } else { %>
+                    <div class="card" style="text-align: center; padding: 40px; border-style: dashed;">
+                        <p>아직 작성한 오답 노트가 없습니다.</p>
+                        <a href="/write" class="btn btn-primary" style="margin-top: 20px;">첫 오답 기록하기</a>
+                    </div>
+                <% } %>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

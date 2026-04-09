@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Re:View - 스마트 오답 노트</title>
+    <title>Re:View - 오답 노트 플랫폼</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -12,31 +12,61 @@
             <a href="/" class="logo">Re:View</a>
             <div class="nav-links">
                 <a href="/board">게시판</a>
-                <a href="/write">오답작성</a>
-                <a href="#">분석</a>
+                <% if (user) { %>
+                    <a href="/write">오답작성</a>
+                    <a href="/logout">로그아웃</a>
+                    <span style="font-weight: 600;"><%= user.username %>님</span>
+                <% } else { %>
+                    <a href="/login">로그인</a>
+                    <a href="/signup" class="btn btn-primary" style="padding: 8px 16px; border-radius: 8px; font-size: 0.9rem;">시작하기</a>
+                <% } %>
             </div>
         </nav>
 
-        <header style="text-align: center; margin-bottom: 60px;">
-            <h1>틀린 이유를 알면<br>정답이 보입니다.</h1>
-            <p style="color: var(--text-sub); font-size: 1.1rem;">Re:View와 함께 체계적으로 오답을 정리하고 공유하세요.</p>
+        <header style="text-align: center; margin-bottom: 80px;">
+            <h1 style="font-size: 3.5rem; margin-bottom: 20px;">공부는 기록의 반복,<br>기록은 성장의 시작.</h1>
+            <p style="color: #666; font-size: 1.2rem;">Re:View와 함께 나만의 오답 노트를 체계적으로 관리하세요.</p>
+            <% if (!user) { %>
+                <div style="margin-top: 40px;">
+                    <a href="/signup" class="btn btn-primary">지금 바로 시작하기</a>
+                </div>
+            <% } else { %>
+                <div style="margin-top: 40px;">
+                    <a href="/write" class="btn btn-primary">새 오답 기록하기</a>
+                </div>
+            <% } %>
         </header>
 
-        <div class="stats-grid">
+        <section class="stats-grid">
             <div class="stat-box">
-                <span class="val">1,240</span>
-                <span class="lbl">공유된 오답 노트</span>
+                <span class="val">1,240+</span>
+                <span class="lbl">기록된 오답 수</span>
             </div>
             <div class="stat-box dark">
                 <span class="val">85%</span>
-                <span class="lbl">평균 성적 향상률</span>
+                <span class="lbl">성적 향상률</span>
             </div>
-        </div>
+        </section>
 
-        <div class="btn-group">
-            <a href="/write" class="btn btn-primary">지금 바로 시작하기</a>
-            <a href="/board" class="btn btn-secondary">다른 학생의 노트 보기</a>
-        </div>
+        <section>
+            <h2 style="margin-bottom: 30px;">최근 공유된 오답</h2>
+            <div class="recent-notes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                <% if (recentNotes && recentNotes.length > 0) { %>
+                    <% recentNotes.forEach(note => { %>
+                        <a href="/post/<%= note.id %>" class="card">
+                            <span class="tag"><%= note.type_name || '기타' %></span>
+                            <h3><%= note.title %></h3>
+                            <p><%= note.solution.substring(0, 50) %>...</p>
+                            <div style="margin-top: 10px; font-size: 0.8rem; color: #999;">
+                                작성자: <%= note.username %>
+                            </div>
+                        </a>
+                    <% }); %>
+                <% } else { %>
+                    <p style="color: #999;">아직 공유된 오답이 없습니다.</p>
+                <% } %>
+            </div>
+        </section>
     </div>
 </body>
 </html>
