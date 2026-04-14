@@ -7,7 +7,7 @@ require('dotenv').config();
 
 const db = require('./db');
 
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 3000;
 
 // View engine setup
 app.set('view engine', 'ejs');
@@ -20,10 +20,13 @@ app.use(express.json());
 
 // Session setup
 app.use(session({
-    secret: 'review-secret-key',
+    secret: process.env.SESSION_SECRET || 'review-default-dev-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 }
+    cookie: { 
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: process.env.NODE_ENV === 'production' // 배포 환경에서는 보안 쿠키 사용 권장
+    }
 }));
 
 // 전역 변수 설정 (에러 방지를 위해 recentNotes의 기본값을 빈 배열로 설정)
