@@ -214,6 +214,106 @@ app.get('/board', async (req, res) => {
     }
 });
 
+// --- Questions Board Routes ---
+
+// 질문 게시판 목록
+app.get('/questions', async (req, res) => {
+    try {
+        const queryText = `
+            SELECT q.*, u.username 
+            FROM Question q
+            JOIN "User" u ON q.user_id = u.id
+            ORDER BY q.created_at DESC
+        `;
+        const result = await db.query(queryText);
+        res.render('questions', { title: '질문 게시판', questions: result.rows });
+    } catch (err) {
+        console.error(err);
+        res.render('questions', { title: '질문 게시판', questions: [] });
+    }
+});
+
+// 질문 작성 페이지
+app.get('/questions/write', (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    res.render('question_write', { title: '질문하기' });
+});
+
+// 질문 저장 처리
+app.post('/questions/write', async (req, res) => {
+    if (!req.session.user) return res.status(401).send('로그인이 필요합니다.');
+    const { title, content, image_url } = req.body;
+    const userId = req.session.user.id;
+
+    try {
+        await db.query(
+            'INSERT INTO Question (user_id, title, content, image_url) VALUES ($1, $2, $3, $4)',
+            [userId, title, content, image_url]
+        );
+        res.redirect('/questions');
+    } catch (err) {
+        console.error(err);
+        res.send('질문 저장 중 오류가 발생했습니다.');
+    }
+});
+
+// 질문 상세 보기 및 답변 목록
+app.get('/questions/:id', async (req, res) => {
+    const questionId = req.params.id;
+    try {
+        // 질문 정보 가져오기
+        const questionQuery = `
+            SELECT q.*, u.username 
+            FROM Question q
+            JOIN "User" u ON q.user_id = u.id
+            WHERE q.id = $1
+        `;
+        const questionResult = await db.query(questionQuery, [questionId]);
+
+        if (questionResult.rows.length === 0) {
+            return res.status(404).send('해당 질문을 찾을 수 없습니다.');
+        }
+
+        // 답변 목록 가져오기
+        const answerQuery = `
+            SELECT a.*, u.username 
+            FROM Answer a
+            JOIN "User" u ON a.user_id = u.id
+            WHERE a.question_id = $1
+            ORDER BY a.created_at ASC
+        `;
+        const answerResult = await db.query(answerQuery, [questionId]);
+
+        res.render('question_post', { 
+            title: questionResult.rows[0].title, 
+            question: questionResult.rows[0],
+            answers: answerResult.rows
+        });
+    } catch (err) {
+        console.error(err);
+        res.send('데이터를 불러오는 중 오류가 발생했습니다.');
+    }
+});
+
+// 답변 저장 처리
+app.post('/questions/:id/answer', async (req, res) => {
+    if (!req.session.user) return res.status(401).send('로그인이 필요합니다.');
+    const questionId = req.params.id;
+    const { content } = req.body;
+    const userId = req.session.user.id;
+
+    try {
+        await db.query(
+            'INSERT INTO Answer (question_id, user_id, content) VALUES ($1, $2, $3)',
+            [questionId, userId, content]
+        );
+        res.redirect(`/questions/${questionId}`);
+    } catch (err) {
+        console.error(err);
+        res.send('답변 저장 중 오류가 발생했습니다.');
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });

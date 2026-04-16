@@ -1,0 +1,49 @@
+<%- include('partials/header') %>
+
+<div class="question-detail" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <h1><%= question.title %></h1>
+    <p style="color: #666;">작성자: <%= question.username %> | 작성일: <%= new Date(question.created_at).toLocaleString() %></p>
+    <hr>
+    <div class="content" style="font-size: 1.1rem; line-height: 1.6; margin: 20px 0;">
+        <%= question.content %>
+    </div>
+    <% if (question.image_url) { %>
+        <div class="image" style="margin-bottom: 20px;">
+            <img src="<%= question.image_url %>" alt="질문 이미지" style="max-width: 100%; border-radius: 8px;">
+        </div>
+    <% } %>
+</div>
+
+<h2 style="margin-top: 40px;">답변 (<%= answers.length %>)</h2>
+<div class="answer-list">
+    <% if (answers.length > 0) { %>
+        <% answers.forEach(a => { %>
+            <div class="card" style="border-left: 5px solid #007bff; padding: 15px; margin-bottom: 15px; background: #f9f9f9; border-radius: 4px;">
+                <p style="white-space: pre-wrap;"><%= a.content %></p>
+                <p style="font-size: 0.9rem; color: #888; text-align: right;">작성자: <%= a.username %> | <%= new Date(a.created_at).toLocaleString() %></p>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <p>아직 답변이 없습니다. 지식을 나눠주세요!</p>
+    <% } %>
+</div>
+
+<hr style="margin-top: 40px;">
+
+<h3>답변 남기기</h3>
+<% if (locals.user) { %>
+    <form action="/questions/<%= question.id %>/answer" method="POST">
+        <textarea name="content" rows="4" placeholder="답변을 입력하세요..." required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px;"></textarea>
+        <div style="text-align: right;">
+            <button type="submit" class="btn">답변 등록</button>
+        </div>
+    </form>
+<% } else { %>
+    <p><a href="/login" style="color: #007bff;">로그인</a> 후 답변을 작성할 수 있습니다.</p>
+<% } %>
+
+<div style="margin-top: 20px;">
+    <a href="/questions" class="btn" style="background: #6c757d;">목록으로</a>
+</div>
+
+<%- include('partials/footer') %>

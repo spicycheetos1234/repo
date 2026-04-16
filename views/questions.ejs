@@ -1,0 +1,23 @@
+<%- include('partials/header') %>
+
+<h1>질문 게시판</h1>
+<p>모르는 문제를 질문하고 서로 답변을 달아보세요!</p>
+
+<div style="margin-bottom: 20px;">
+    <a href="/questions/write" class="btn">질문하기</a>
+</div>
+
+<div class="board-list">
+    <% if (questions.length > 0) { %>
+        <% questions.forEach(q => { %>
+            <div class="card" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
+                <h3><a href="/questions/<%= q.id %>" style="text-decoration: none; color: #333;"><%= q.title %></a></h3>
+                <p>작성자: <%= q.username %> | 작성일: <%= new Date(q.created_at).toLocaleDateString() %></p>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <p>등록된 질문이 없습니다. 첫 질문을 남겨보세요!</p>
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>
