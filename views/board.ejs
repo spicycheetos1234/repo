@@ -1,49 +1,35 @@
 <%- include('partials/header') %>
 
-<div style="max-width: 1000px; margin: auto;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #333;">
-        <h2 style="margin: 0;">오답 게시판</h2>
-        <% if (user) { %>
-            <a href="/write" class="btn" style="background: #03c75a; font-weight: bold;">글쓰기</a>
-        <% } %>
-    </div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+    <h1>오답 게시판</h1>
+    <% if (user) { %>
+        <a href="/write" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.9rem;">새 오답 작성</a>
+    <% } %>
+</div>
 
-    <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
-        <thead>
-            <tr style="background: #f8f9fa; border-bottom: 1px solid #ddd;">
-                <th style="padding: 12px; text-align: center; width: 80px;">유형</th>
-                <th style="padding: 12px; text-align: left;">제목</th>
-                <th style="padding: 12px; text-align: center; width: 120px;">작성자</th>
-                <th style="padding: 12px; text-align: center; width: 100px;">날짜</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% if (notes && notes.length > 0) { %>
-                <% notes.forEach(note => { %>
-                    <tr style="border-bottom: 1px solid #eee; transition: background 0.2s;" onmouseover="this.style.background='#fcfcfc'" onmouseout="this.style.background='transparent'">
-                        <td style="padding: 12px; text-align: center;">
-                            <span style="font-size: 0.8rem; background: #e9ecef; padding: 2px 6px; border-radius: 3px; color: #666;">
-                                <%= note.type_name || '기타' %>
-                            </span>
-                        </td>
-                        <td style="padding: 12px;">
-                            <a href="/post/<%= note.id %>" style="text-decoration: none; color: #333; font-weight: 500;">
-                                <%= note.title %>
-                            </a>
-                        </td>
-                        <td style="padding: 12px; text-align: center; color: #666;"><%= note.username || '익명' %></td>
-                        <td style="padding: 12px; text-align: center; color: #888;">
-                            <%= new Date(note.created_at).toLocaleDateString('ko-KR', {month: '2-digit', day: '2-digit'}) %>
-                        </td>
-                    </tr>
-                <% }); %>
-            <% } else { %>
-                <tr>
-                    <td colspan="4" style="padding: 50px; text-align: center; color: #999;">등록된 게시글이 없습니다.</td>
-                </tr>
-            <% } %>
-        </tbody>
-    </table>
+<div class="notes-list">
+    <% if (notes && notes.length > 0) { %>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <% notes.forEach(note => { %>
+                <a href="/post/<%= note.id %>" class="card" style="display: block; text-decoration: none; color: inherit; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+                    <span class="tag" style="background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">
+                        <%= note.type_name || '기타' %>
+                    </span>
+                    <h3 style="margin: 10px 0;"><%= note.title %></h3>
+                    <p style="color: #666;"><%= note.solution.substring(0, 80) %><%= note.solution.length > 80 ? '...' : '' %></p>
+                    <div style="margin-top: 15px; font-size: 0.8rem; color: #999; display: flex; justify-content: space-between;">
+                        <span>작성자: <%= note.username || '익명' %></span>
+                        <span><%= new Date(note.created_at).toLocaleDateString() %></span>
+                    </div>
+                </a>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="card" style="text-align: center; padding: 60px; border: 1px solid #ddd; border-radius: 8px;">
+            <p>아직 등록된 오답 노트가 없습니다. 첫 번째 노트를 작성해 보세요!</p>
+            <a href="/write" class="btn btn-primary" style="margin-top: 20px;">오답 작성하기</a>
+        </div>
+    <% } %>
 </div>
 
 <%- include('partials/footer') %>
