@@ -156,6 +156,9 @@ app.post('/write', async (req, res) => {
 
 // 오답 상세 보기
 app.get('/post/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.send('<script>alert("로그인이 필요한 서비스입니다."); location.href="/login";</script>');
+    }
     const postId = req.params.id;
     try {
         const queryText = `
@@ -263,6 +266,9 @@ app.post('/questions/write', async (req, res) => {
 
 // 질문 상세 보기 및 답변 목록
 app.get('/questions/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.send('<script>alert("로그인이 필요한 서비스입니다."); location.href="/login";</script>');
+    }
     const questionId = req.params.id;
     try {
         // 질문 정보 가져오기
