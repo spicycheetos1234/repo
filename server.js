@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
@@ -21,14 +22,18 @@ app.use(express.json());
 
 // Session setup
 app.use(session({
+    store: new pgSession({
+        pool : db.pool,                
+        tableName : 'session'          
+    }),
     secret: process.env.SESSION_SECRET || 'review-default-dev-secret-key',
     resave: false,
     saveUninitialized: false,
-    proxy: true, // 프록시 환경 명시
+    proxy: true, 
     cookie: { 
-        maxAge: 1000 * 60 * 60 * 24,
-        secure: process.env.NODE_ENV === 'production', // 배포 환경에서는 보안 쿠키 사용 권장
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // 크로스 도메인 이슈 방지
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' 
     }
 }));
 
