@@ -14,6 +14,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Middlewares
+app.set('trust proxy', 1); // Render와 같은 프록시 환경에서 세션을 유지하기 위해 필요
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -23,9 +24,11 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'review-default-dev-secret-key',
     resave: false,
     saveUninitialized: false,
+    proxy: true, // 프록시 환경 명시
     cookie: { 
         maxAge: 1000 * 60 * 60 * 24,
-        secure: process.env.NODE_ENV === 'production' // 배포 환경에서는 보안 쿠키 사용 권장
+        secure: process.env.NODE_ENV === 'production', // 배포 환경에서는 보안 쿠키 사용 권장
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // 크로스 도메인 이슈 방지
     }
 }));
 
@@ -33,6 +36,7 @@ app.use(session({
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     res.locals.recentNotes = []; // 기본값 추가
+    console.log("Current Session User:", req.session.user); // 디버깅용 로그
     next();
 });
 
@@ -81,8 +85,8 @@ app.post('/signup', async (req, res) => {
         );
         res.redirect('/login');
     } catch (err) {
-        console.error(err);
-        res.send('회원가입 중 오류가 발생했습니다.');
+        console.error("Signup Error Detailed:", err);
+        res.status(500).send(`회원가입 중 오류가 발생했습니다: ${err.message}`);
     }
 });
 
