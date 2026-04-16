@@ -1,23 +1,54 @@
-<%- include('partials/header') %>
-
-<h1>질문 게시판</h1>
-<p>모르는 문제를 질문하고 서로 답변을 달아보세요!</p>
-
-<div style="margin-bottom: 20px;">
-    <a href="/questions/write" class="btn">질문하기</a>
-</div>
-
-<div class="board-list">
-    <% if (questions.length > 0) { %>
-        <% questions.forEach(q => { %>
-            <div class="card" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
-                <h3><a href="/questions/<%= q.id %>" style="text-decoration: none; color: #333;"><%= q.title %></a></h3>
-                <p>작성자: <%= q.username %> | 작성일: <%= new Date(q.created_at).toLocaleDateString() %></p>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re:View - 질문 게시판</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/" class="logo">Re:View</a>
+            <div class="nav-links">
+                <a href="/board">게시판</a>
+                <a href="/questions">질문게시판</a>
+                <% if (user) { %>
+                    <a href="/write">오답작성</a>
+                    <a href="/profile">마이페이지</a>
+                    <a href="/logout">로그아웃</a>
+                <% } else { %>
+                    <a href="/login">로그인</a>
+                <% } %>
             </div>
-        <% }) %>
-    <% } else { %>
-        <p>등록된 질문이 없습니다. 첫 질문을 남겨보세요!</p>
-    <% } %>
-</div>
+        </nav>
 
-<%- include('partials/footer') %>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <h1>질문 게시판</h1>
+            <a href="/questions/write" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.9rem;">질문하기</a>
+        </div>
+
+        <div class="notes-list">
+            <% if (questions && questions.length > 0) { %>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <% questions.forEach(q => { %>
+                        <a href="/questions/<%= q.id %>" class="card">
+                            <h3><%= q.title %></h3>
+                            <p><%= q.content.substring(0, 80) %><%= q.content.length > 80 ? '...' : '' %></p>
+                            <div style="margin-top: 15px; font-size: 0.8rem; color: #999; display: flex; justify-content: space-between;">
+                                <span>작성자: <%= q.username %></span>
+                                <span><%= new Date(q.created_at).toLocaleDateString() %></span>
+                            </div>
+                        </a>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="card" style="text-align: center; padding: 60px;">
+                    <p>등록된 질문이 없습니다. 첫 번째 질문을 남겨보세요!</p>
+                    <a href="/questions/write" class="btn btn-primary" style="margin-top: 20px;">질문 작성하기</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>
