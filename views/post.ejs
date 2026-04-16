@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Re:View - <%= note.title %></title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .like-section { margin: 30px 0; text-align: center; }
+        .like-btn { 
+            background: #fff; border: 2px solid #ff4757; color: #ff4757; 
+            padding: 10px 20px; border-radius: 30px; font-weight: bold; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .like-btn.active { background: #ff4757; color: #fff; }
+        .comment-section { margin-top: 50px; border-top: 1px solid #eee; padding-top: 30px; }
+        .comment-item { border-bottom: 1px solid #f9f9f9; padding: 15px 0; }
+        .comment-form textarea { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; resize: vertical; }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -12,8 +24,14 @@
             <a href="/" class="logo">Re:View</a>
             <div class="nav-links">
                 <a href="/board">게시판</a>
-                <a href="/write">오답작성</a>
-                <a href="/profile">마이페이지</a>
+                <a href="/questions">질문게시판</a>
+                <% if (user) { %>
+                    <a href="/write">오답작성</a>
+                    <a href="/profile">마이페이지</a>
+                    <a href="/logout">로그아웃</a>
+                <% } else { %>
+                    <a href="/login">로그인</a>
+                <% } %>
             </div>
         </nav>
 
@@ -38,12 +56,52 @@
                 <p style="white-space: pre-wrap; margin-top: 20px;"><%= note.solution %></p>
             </div>
 
-            <div class="btn-group" style="justify-content: flex-start; margin-top: 40px;">
-                <a href="/board" class="btn btn-secondary">목록으로 돌아가기</a>
-                <% if (user && user.id === note.user_id) { %>
-                    <button class="btn btn-primary">수정하기</button>
-                <% } %>
+            <!-- 좋아요 섹션 -->
+            <div class="like-section">
+                <form action="/post/<%= note.id %>/like" method="POST" style="display: inline;">
+                    <button type="submit" class="like-btn <%= userLiked ? 'active' : '' %>">
+                        ❤ 좋아요 <%= likeCount %>
+                    </button>
+                </form>
             </div>
+
+            <div class="btn-group" style="justify-content: flex-start; margin-top: 20px;">
+                <a href="/board" class="btn btn-secondary">목록으로 돌아가기</a>
+            </div>
+
+            <!-- 댓글 섹션 -->
+            <section class="comment-section">
+                <h3>댓글 (<%= comments.length %>)</h3>
+                
+                <% if (user) { %>
+                    <form action="/post/<%= note.id %>/comment" method="POST" class="comment-form">
+                        <textarea name="content" rows="3" placeholder="응원의 댓글을 남겨주세요!" required></textarea>
+                        <div style="text-align: right;">
+                            <button type="submit" class="btn btn-primary">댓글 등록</button>
+                        </div>
+                    </form>
+                <% } else { %>
+                    <p style="text-align: center; color: #888; background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <a href="/login" style="color: #007bff;">로그인</a> 후 댓글을 남길 수 있습니다.
+                    </p>
+                <% } %>
+
+                <div class="comment-list" style="margin-top: 30px;">
+                    <% if (comments.length > 0) { %>
+                        <% comments.forEach(comment => { %>
+                            <div class="comment-item">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <strong><%= comment.username %></strong>
+                                    <span style="font-size: 0.8rem; color: #999;"><%= new Date(comment.created_at).toLocaleString() %></span>
+                                </div>
+                                <p style="margin: 0; color: #444;"><%= comment.content %></p>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p style="color: #999; text-align: center; padding: 20px;">첫 댓글을 남겨보세요!</p>
+                    <% } %>
+                </div>
+            </section>
         </article>
     </div>
 </body>

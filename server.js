@@ -160,8 +160,10 @@ app.get('/post/:id', async (req, res) => {
         return res.send('<script>alert("로그인이 필요한 서비스입니다."); location.href="/login";</script>');
     }
     const postId = req.params.id;
+    const userId = req.session.user.id;
     try {
-        const queryText = `
+        // 1. 오답 노트 정보 가져오기
+        const noteQuery = `
             SELECT wn.*, wt.name as type_name, u.username 
             FROM WrongNote wn
             LEFT JOIN WrongNoteType wnt ON wn.id = wnt.wrong_note_id
@@ -169,15 +171,78 @@ app.get('/post/:id', async (req, res) => {
             LEFT JOIN "User" u ON wn.user_id = u.id
             WHERE wn.id = $1
         `;
-        const result = await db.query(queryText, [postId]);
-        if (result.rows.length > 0) {
-            res.render('post', { title: result.rows[0].title, note: result.rows[0] });
-        } else {
-            res.send('해당 오답 노트를 찾을 수 없습니다.');
+        const noteResult = await db.query(noteQuery, [postId]);
+        
+        if (noteResult.rows.length === 0) {
+            return res.send('해당 오답 노트를 찾을 수 없습니다.');
         }
+
+        // 2. 좋아요 수 및 현재 사용자의 좋아요 여부 확인
+        const likeCountResult = await db.query('SELECT COUNT(*) FROM "Like" WHERE wrong_note_id = $1', [postId]);
+        const userLikeResult = await db.query('SELECT * FROM "Like" WHERE wrong_note_id = $1 AND user_id = $2', [postId, userId]);
+
+        // 3. 댓글 목록 가져오기
+        const commentQuery = `
+            SELECT c.*, u.username 
+            FROM Comment c
+            JOIN "User" u ON c.user_id = u.id
+            WHERE c.wrong_note_id = $1
+            ORDER BY c.created_at ASC
+        `;
+        const commentResult = await db.query(commentQuery, [postId]);
+
+        res.render('post', { 
+            title: noteResult.rows[0].title, 
+            note: noteResult.rows[0],
+            likeCount: likeCountResult.rows[0].count,
+            userLiked: userLikeResult.rows.length > 0,
+            comments: commentResult.rows
+        });
     } catch (err) {
         console.error(err);
         res.send('데이터를 불러오는 중 오류가 발생했습니다.');
+    }
+});
+
+// 좋아요 토글 처리
+app.post('/post/:id/like', async (req, res) => {
+    if (!req.session.user) return res.status(401).send('로그인이 필요합니다.');
+    const postId = req.params.id;
+    const userId = req.session.user.id;
+
+    try {
+        const checkLike = await db.query('SELECT * FROM "Like" WHERE user_id = $1 AND wrong_note_id = $2', [userId, postId]);
+        
+        if (checkLike.rows.length > 0) {
+            // 이미 좋아요가 있으면 삭제
+            await db.query('DELETE FROM "Like" WHERE user_id = $1 AND wrong_note_id = $2', [userId, postId]);
+        } else {
+            // 없으면 추가
+            await db.query('INSERT INTO "Like" (user_id, wrong_note_id) VALUES ($1, $2)', [userId, postId]);
+        }
+        res.redirect(`/post/${postId}`);
+    } catch (err) {
+        console.error(err);
+        res.send('좋아요 처리 중 오류가 발생했습니다.');
+    }
+});
+
+// 댓글 저장 처리
+app.post('/post/:id/comment', async (req, res) => {
+    if (!req.session.user) return res.status(401).send('로그인이 필요합니다.');
+    const postId = req.params.id;
+    const { content } = req.body;
+    const userId = req.session.user.id;
+
+    try {
+        await db.query(
+            'INSERT INTO Comment (wrong_note_id, user_id, content) VALUES ($1, $2, $3)',
+            [postId, userId, content]
+        );
+        res.redirect(`/post/${postId}`);
+    } catch (err) {
+        console.error(err);
+        res.send('댓글 저장 중 오류가 발생했습니다.');
     }
 });
 
