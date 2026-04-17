@@ -8,6 +8,25 @@ require('dotenv').config();
 
 const db = require('./db');
 
+// DB 세션 테이블 자동 생성 로직
+async function initSessionTable() {
+    try {
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS "session" (
+                "sid" varchar NOT NULL COLLATE "default",
+                "sess" json NOT NULL,
+                "expire" timestamp(6) NOT NULL,
+                CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+            )
+        `);
+        await db.query(`CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire")`);
+        console.log("Session table check/creation complete.");
+    } catch (err) {
+        console.error("Error creating session table:", err);
+    }
+}
+initSessionTable();
+
 const port = process.env.PORT || 3000;
 
 // View engine setup
