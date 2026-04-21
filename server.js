@@ -348,6 +348,74 @@ app.post('/post/:id/comment', async (req, res) => {
     }
 });
 
+// 오답 분석 대시보드
+app.get('/analysis', async (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    const userId = req.session.user.id;
+
+    try {
+        // 1. 오답 유형별 통계 가져오기
+        const typeStatsQuery = `
+            SELECT wt.name, COUNT(*) as count
+            FROM WrongNote wn
+            JOIN WrongNoteType wnt ON wn.id = wnt.wrong_note_id
+            JOIN WrongType wt ON wnt.wrong_type_id = wt.id
+            WHERE wn.user_id = $1
+            GROUP BY wt.name
+            ORDER BY count DESC
+        `;
+        const typeStats = await db.query(typeStatsQuery, [userId]);
+
+        // 2. 전체 오답 수 및 최근 일주일간 작성 수
+        const totalCountRes = await db.query('SELECT COUNT(*) FROM WrongNote WHERE user_id = $1', [userId]);
+        const totalCount = parseInt(totalCountRes.rows[0].count);
+
+        const weeklyCountRes = await db.query(
+            "SELECT COUNT(*) FROM WrongNote WHERE user_id = $1 AND created_at > NOW() - INTERVAL '7 days'",
+            [userId]
+        );
+        const weeklyCount = parseInt(weeklyCountRes.rows[0].count);
+
+        // 3. 맞춤형 피드백 메세지 생성 로직 (Heuristics)
+        let feedbacks = [];
+        if (totalCount === 0) {
+            feedbacks.push("아직 기록된 오답이 없습니다. 첫 오답을 기록하고 분석을 시작해보세요!");
+        } else {
+            if (weeklyCount < 3) {
+                feedbacks.push("이번 주 학습 기록이 조금 부족해요. 작은 실수도 기록하는 습관이 성장의 밑거름이 됩니다.");
+            } else {
+                feedbacks.push("꾸준히 오답을 기록하고 계시네요! 이 기세를 몰아 약점을 완벽히 극복해봅시다.");
+            }
+
+            if (typeStats.rows.length > 0) {
+                const topType = typeStats.rows[0];
+                const percentage = Math.round((parseInt(topType.count) / totalCount) * 100);
+
+                if (topType.name === '계산 실수') {
+                    feedbacks.push(`전체 오답 중 ${percentage}%가 '계산 실수'입니다. 풀이 과정을 더 정갈하게 쓰고 검토 시간을 5분만 더 확보해보세요.`);
+                } else if (topType.name === '개념 부족') {
+                    feedbacks.push(`'개념 부족'이 주요 원인(${percentage}%)으로 나타납니다. 어려운 문제를 풀기보다 교과서의 기본 정의를 다시 정독하는 것을 추천합니다.`);
+                } else if (topType.name === '문제 해석 오류') {
+                    feedbacks.push(`문제를 잘못 읽는 경우(${percentage}%)가 많습니다. 문제의 핵심 조건에 밑줄을 치며 읽는 습관을 들여보세요.`);
+                } else if (topType.name === '발상 실패') {
+                    feedbacks.push(`문제의 실마리를 찾지 못하는 경우(${percentage}%)가 많네요. 유사한 유형의 대표 예제들을 다시 한번 분석해보세요.`);
+                }
+            }
+        }
+
+        res.render('analysis', {
+            title: '오답 분석 리포트',
+            typeStats: typeStats.rows,
+            totalCount,
+            weeklyCount,
+            feedbacks
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('분석 데이터를 불러오는 중 오류가 발생했습니다.');
+    }
+});
+
 // 마이페이지
 app.get('/profile', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
