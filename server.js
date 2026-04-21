@@ -369,22 +369,52 @@ app.get('/profile', async (req, res) => {
     }
 });
 
-// 게시판
+// 통합 게시판 (검색 기능 포함)
 app.get('/board', async (req, res) => {
+    const { search, type } = req.query;
+    let queryParams = [];
+    let whereClause = "";
+
+    if (search) {
+        queryParams.push(`%${search}%`);
+        whereClause = `WHERE title ILIKE $1 OR content_text ILIKE $1`;
+    }
+
     try {
+        // WrongNote와 Question을 하나로 합쳐서 가져오는 쿼리 (UNION)
         const queryText = `
-            SELECT wn.*, wt.name as type_name, u.username 
-            FROM WrongNote wn
-            LEFT JOIN WrongNoteType wnt ON wn.id = wnt.wrong_note_id
-            LEFT JOIN WrongType wt ON wnt.wrong_type_id = wt.id
-            LEFT JOIN "User" u ON wn.user_id = u.id
-            ORDER BY wn.created_at DESC
+            SELECT * FROM (
+                SELECT 
+                    id, user_id, title, solution as content_text, created_at, 
+                    'note' as item_type, problem_image_url as image_url
+                FROM WrongNote
+                UNION ALL
+                SELECT 
+                    id, user_id, title, content as content_text, created_at, 
+                    'question' as item_type, image_url
+                FROM Question
+            ) combined_items
+            ${whereClause}
+            ORDER BY created_at DESC
         `;
-        const result = await db.query(queryText);
-        res.render('board', { title: '오답 게시판', notes: result.rows });
+        
+        const result = await db.query(queryText, queryParams);
+        
+        // 작성자 이름을 가져오기 위해 추가 쿼리 또는 JOIN 최적화 필요 (여기선 간단히 전달)
+        // 실제 운영시는 UNION 내부에서 JOIN을 거는 것이 좋습니다.
+        const itemsWithUser = await Promise.all(result.rows.map(async (item) => {
+            const userRes = await db.query('SELECT username FROM "User" WHERE id = $1', [item.user_id]);
+            return { ...item, username: userRes.rows[0]?.username || '알수없음' };
+        }));
+
+        res.render('board', { 
+            title: '통합 게시판', 
+            notes: itemsWithUser, // 기존 템플릿 호환을 위해 notes 변수명 유지
+            search: search || ''
+        });
     } catch (err) {
         console.error(err);
-        res.render('board', { title: '오답 게시판', notes: [] });
+        res.render('board', { title: '게시판 에러', notes: [], search: '' });
     }
 });
 

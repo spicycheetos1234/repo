@@ -3,53 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Re:View - 오답 게시판</title>
+    <title>Re:View - 통합 게시판</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .search-container { margin-bottom: 30px; text-align: center; }
+        .search-container input { padding: 10px; width: 300px; border-radius: 5px; border: 1px solid #ddd; }
+        .item-type-tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; display: inline-block; }
+        .tag-note { background: #e3f2fd; color: #1976d2; }
+        .tag-question { background: #fff3e0; color: #f57c00; }
+    </style>
 </head>
 <body>
     <div class="container">
         <nav>
             <a href="/" class="logo">Re:View</a>
             <div class="nav-links">
-                <a href="/board">게시판</a>
+                <a href="/board">전체게시판</a>
                 <% if (user) { %>
                     <a href="/write">오답작성</a>
                     <a href="/profile">마이페이지</a>
-                    <a href="/logout">로그아웃</a>
                 <% } else { %>
                     <a href="/login">로그인</a>
                 <% } %>
             </div>
         </nav>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
-            <h1>오답 게시판</h1>
-            <% if (user) { %>
-                <a href="/write" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.9rem;">새 오답 작성</a>
-            <% } %>
+        <header style="margin-bottom: 40px; text-align: center;">
+            <h1>통합 게시판</h1>
+            <p>오답 노트와 질문을 한곳에서 확인하세요.</p>
+        </header>
+
+        <div class="search-container">
+            <form action="/board" method="GET">
+                <input type="text" name="search" placeholder="제목 또는 내용 검색..." value="<%= search %>">
+                <button type="submit" class="btn btn-primary">검색</button>
+            </form>
         </div>
 
         <div class="notes-list">
             <% if (notes && notes.length > 0) { %>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <% notes.forEach(note => { %>
-                        <a href="/post/<%= note.id %>" class="card">
-                            <span class="tag">
-                                <%= note.type_name || '기타' %>
-                            </span>
-                            <h3><%= note.title %></h3>
-                            <p><%= note.solution.substring(0, 80) %><%= note.solution.length > 80 ? '...' : '' %></p>
-                            <div style="margin-top: 15px; font-size: 0.8rem; color: #999; display: flex; justify-content: space-between;">
-                                <span>작성자: <%= note.username || '익명' %></span>
-                                <span><%= new Date(note.created_at).toLocaleDateString() %></span>
-                            </div>
-                        </a>
-                    <% }); %>
-                </div>
+                <% notes.forEach(item => { %>
+                    <a href="<%= item.item_type === 'note' ? '/post/' + item.id : '/questions/' + item.id %>" class="card">
+                        <span class="item-type-tag <%= item.item_type === 'note' ? 'tag-note' : 'tag-question' %>">
+                            <%= item.item_type === 'note' ? '오답노트' : '질문' %>
+                        </span>
+                        <h3><%= item.title %></h3>
+                        <p><%= item.content_text.substring(0, 80) %>...</p>
+                        <div style="margin-top: 15px; font-size: 0.8rem; color: #999; display: flex; justify-content: space-between;">
+                            <span>작성자: <%= item.username %></span>
+                            <span><%= new Date(item.created_at).toLocaleDateString() %></span>
+                        </div>
+                    </a>
+                <% }); %>
             <% } else { %>
-                <div class="card" style="text-align: center; padding: 60px;">
-                    <p>아직 등록된 오답 노트가 없습니다. 첫 번째 노트를 작성해 보세요!</p>
-                    <a href="/write" class="btn btn-primary" style="margin-top: 20px;">오답 작성하기</a>
+                <div style="text-align: center; padding: 50px; color: #999;">
+                    검색 결과가 없거나 게시글이 존재하지 않습니다.
                 </div>
             <% } %>
         </div>
