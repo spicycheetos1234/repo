@@ -418,24 +418,7 @@ app.get('/board', async (req, res) => {
     }
 });
 
-// --- Questions Board Routes ---
-
-// 질문 게시판 목록
-app.get('/questions', async (req, res) => {
-    try {
-        const queryText = `
-            SELECT q.*, u.username 
-            FROM Question q
-            JOIN "User" u ON q.user_id = u.id
-            ORDER BY q.created_at DESC
-        `;
-        const result = await db.query(queryText);
-        res.render('questions', { title: '질문 게시판', questions: result.rows });
-    } catch (err) {
-        console.error(err);
-        res.render('questions', { title: '질문 게시판', questions: [] });
-    }
-});
+// --- Unified Board Routes (Consolidated) ---
 
 // 질문 작성 페이지
 app.get('/questions/write', (req, res) => {
@@ -454,7 +437,7 @@ app.post('/questions/write', async (req, res) => {
             'INSERT INTO Question (user_id, title, content, image_url) VALUES ($1, $2, $3, $4)',
             [userId, title, content, image_url]
         );
-        res.redirect('/questions');
+        res.redirect('/board');
     } catch (err) {
         console.error(err);
         res.send('질문 저장 중 오류가 발생했습니다.');
