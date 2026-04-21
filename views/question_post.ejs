@@ -12,6 +12,15 @@
             <img src="<%= question.image_url %>" alt="질문 이미지" style="max-width: 100%; border-radius: 8px;">
         </div>
     <% } %>
+    
+    <% if (user && user.id === question.user_id) { %>
+        <div style="margin-top: 20px; text-align: right;">
+            <a href="/questions/<%= question.id %>/edit" class="btn" style="background: #ffa502;">수정하기</a>
+            <form action="/questions/<%= question.id %>/delete" method="POST" onsubmit="return confirm('정말로 삭제하시겠습니까?');" style="display: inline;">
+                <button type="submit" class="btn" style="background: #ff4757;">삭제하기</button>
+            </form>
+        </div>
+    <% } %>
 </div>
 
 <h2 style="margin-top: 40px;">답변 (<%= answers.length %>)</h2>

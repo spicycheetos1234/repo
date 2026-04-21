@@ -220,11 +220,89 @@ app.get('/post/:id', async (req, res) => {
             note: noteResult.rows[0],
             likeCount: likeCountResult.rows[0].count,
             userLiked: userLikeResult.rows.length > 0,
-            comments: commentResult.rows
+            comments: commentResult.rows,
+            user: req.session.user // Ensure user is passed for ownership check
         });
     } catch (err) {
         console.error(err);
         res.send('데이터를 불러오는 중 오류가 발생했습니다.');
+    }
+});
+
+// 오답 수정 페이지
+app.get('/post/:id/edit', async (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    const postId = req.params.id;
+    const userId = req.session.user.id;
+
+    try {
+        const result = await db.query(`
+            SELECT wn.*, wnt.wrong_type_id 
+            FROM WrongNote wn
+            LEFT JOIN WrongNoteType wnt ON wn.id = wnt.wrong_note_id
+            WHERE wn.id = $1 AND wn.user_id = $2
+        `, [postId, userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(403).send('수정 권한이 없거나 존재하지 않는 게시글입니다.');
+        }
+
+        res.render('edit', { title: '오답 수정', note: result.rows[0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('데이터 로딩 중 오류 발생');
+    }
+});
+
+// 오답 수정 처리
+app.post('/post/:id/edit', async (req, res) => {
+    if (!req.session.user) return res.status(401).send('로그인이 필요합니다.');
+    const postId = req.params.id;
+    const userId = req.session.user.id;
+    const { title, problem_image_url, reason_id, solution, is_public } = req.body;
+    const publicValue = is_public === 'on';
+
+    try {
+        // 소유권 확인
+        const check = await db.query('SELECT * FROM WrongNote WHERE id = $1 AND user_id = $2', [postId, userId]);
+        if (check.rows.length === 0) return res.status(403).send('수정 권한이 없습니다.');
+
+        // WrongNote 업데이트
+        await db.query(
+            'UPDATE WrongNote SET title = $1, problem_image_url = $2, solution = $3, is_public = $4 WHERE id = $5',
+            [title, problem_image_url, solution, publicValue, postId]
+        );
+
+        // WrongNoteType 업데이트 (기존 삭제 후 삽입)
+        await db.query('DELETE FROM WrongNoteType WHERE wrong_note_id = $1', [postId]);
+        if (reason_id && reason_id !== '0') {
+            await db.query(
+                'INSERT INTO WrongNoteType (wrong_note_id, wrong_type_id) VALUES ($1, $2)',
+                [postId, reason_id]
+            );
+        }
+
+        res.redirect(`/post/${postId}`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('수정 중 오류 발생');
+    }
+});
+
+// 오답 삭제 처리
+app.post('/post/:id/delete', async (req, res) => {
+    if (!req.session.user) return res.status(401).send('로그인이 필요합니다.');
+    const postId = req.params.id;
+    const userId = req.session.user.id;
+
+    try {
+        const result = await db.query('DELETE FROM WrongNote WHERE id = $1 AND user_id = $2', [postId, userId]);
+        if (result.rowCount === 0) return res.status(403).send('삭제 권한이 없거나 존재하지 않는 게시글입니다.');
+        
+        res.redirect('/board');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('삭제 중 오류 발생');
     }
 });
 
@@ -386,11 +464,67 @@ app.get('/questions/:id', async (req, res) => {
         res.render('question_post', { 
             title: questionResult.rows[0].title, 
             question: questionResult.rows[0],
-            answers: answerResult.rows
+            answers: answerResult.rows,
+            user: req.session.user // Ensure user is passed for ownership check
         });
     } catch (err) {
         console.error(err);
         res.send('데이터를 불러오는 중 오류가 발생했습니다.');
+    }
+});
+
+// 질문 수정 페이지
+app.get('/questions/:id/edit', async (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    const questionId = req.params.id;
+    const userId = req.session.user.id;
+
+    try {
+        const result = await db.query('SELECT * FROM Question WHERE id = $1 AND user_id = $2', [questionId, userId]);
+        if (result.rows.length === 0) return res.status(403).send('수정 권한이 없거나 존재하지 않는 질문입니다.');
+
+        res.render('question_edit', { title: '질문 수정', question: result.rows[0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('데이터 로딩 중 오류 발생');
+    }
+});
+
+// 질문 수정 처리
+app.post('/questions/:id/edit', async (req, res) => {
+    if (!req.session.user) return res.status(401).send('로그인이 필요합니다.');
+    const questionId = req.params.id;
+    const userId = req.session.user.id;
+    const { title, content, image_url } = req.body;
+
+    try {
+        const result = await db.query(
+            'UPDATE Question SET title = $1, content = $2, image_url = $3 WHERE id = $4 AND user_id = $5',
+            [title, content, image_url, questionId, userId]
+        );
+        if (result.rowCount === 0) return res.status(403).send('수정 권한이 없습니다.');
+        
+        res.redirect(`/questions/${questionId}`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('수정 중 오류 발생');
+    }
+});
+
+// 질문 삭제 처리
+app.post('/questions/:id/delete', async (req, res) => {
+    if (!req.session.user) return res.status(401).send('로그인이 필요합니다.');
+    const questionId = req.params.id;
+    const userId = req.session.user.id;
+
+    try {
+        const result = await db.query('DELETE FROM Question WHERE id = $1 AND user_id = $2', [questionId, userId]);
+        if (result.rowCount === 0) return res.status(403).send('삭제 권한이 없거나 존재하지 않는 질문입니다.');
+        
+        res.redirect('/questions');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('삭제 중 오류 발생');
     }
 });
 

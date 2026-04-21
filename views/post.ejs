@@ -65,8 +65,14 @@
                 </form>
             </div>
 
-            <div class="btn-group" style="justify-content: flex-start; margin-top: 20px;">
+            <div class="btn-group" style="justify-content: flex-start; margin-top: 20px; gap: 10px;">
                 <a href="/board" class="btn btn-secondary">목록으로 돌아가기</a>
+                <% if (user && user.id === note.user_id) { %>
+                    <a href="/post/<%= note.id %>/edit" class="btn btn-primary" style="background: #ffa502;">수정하기</a>
+                    <form action="/post/<%= note.id %>/delete" method="POST" onsubmit="return confirm('정말로 삭제하시겠습니까?');" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" style="background: #ff4757; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">삭제하기</button>
+                    </form>
+                <% } %>
             </div>
 
             <!-- 댓글 섹션 -->

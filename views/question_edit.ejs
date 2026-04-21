@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+
+<h1>질문 수정</h1>
+
+<form action="/questions/<%= question.id %>/edit" method="POST" style="max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <div style="margin-bottom: 15px;">
+        <label for="title" style="display: block; margin-bottom: 5px;">제목</label>
+        <input type="text" id="title" name="title" value="<%= question.title %>" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+    <div style="margin-bottom: 15px;">
+        <label for="content" style="display: block; margin-bottom: 5px;">질문 내용</label>
+        <textarea id="content" name="content" rows="10" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"><%= question.content %></textarea>
+    </div>
+    <div style="margin-bottom: 15px;">
+        <label for="image_url" style="display: block; margin-bottom: 5px;">이미지 URL (선택)</label>
+        <input type="text" id="image_url" name="image_url" value="<%= question.image_url %>" placeholder="http://..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+    <div style="text-align: right;">
+        <button type="submit" class="btn">수정 완료</button>
+        <a href="/questions/<%= question.id %>" style="margin-left: 10px; color: #666;">취소</a>
+    </div>
+</form>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re:View - 오답 수정</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/" class="logo">Re:View</a>
+            <div class="nav-links">
+                <a href="/board">게시판</a>
+                <a href="/write">오답작성</a>
+                <a href="/profile">마이페이지</a>
+            </div>
+        </nav>
+
+        <h1>오답 수정</h1>
+
+        <div class="card" style="padding: 40px; margin-top: 20px;">
+            <form action="/post/<%= note.id %>/edit" method="POST">
+                <div class="form-group">
+                    <label for="title">문제 제목</label>
+                    <input type="text" id="title" name="title" value="<%= note.title %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="reason_id">틀린 원인</label>
+                    <select id="reason_id" name="reason_id" required>
+                        <option value="1" <%= note.wrong_type_id === 1 ? 'selected' : '' %>>계산 실수</option>
+                        <option value="2" <%= note.wrong_type_id === 2 ? 'selected' : '' %>>문제 해석 오류</option>
+                        <option value="3" <%= note.wrong_type_id === 3 ? 'selected' : '' %>>개념 부족</option>
+                        <option value="4" <%= note.wrong_type_id === 4 ? 'selected' : '' %>>발상 실패</option>
+                        <option value="5" <%= note.wrong_type_id === 5 ? 'selected' : '' %>>시간 부족</option>
+                        <option value="0" <%= !note.wrong_type_id ? 'selected' : '' %>>기타</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="problem_image_url">문제 이미지 URL (선택)</label>
+                    <input type="text" id="problem_image_url" name="problem_image_url" value="<%= note.problem_image_url %>" placeholder="https://...">
+                </div>
+
+                <div class="form-group">
+                    <label for="solution">나의 풀이 및 보완할 점</label>
+                    <textarea id="solution" name="solution" rows="8" required><%= note.solution %></textarea>
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="is_public" name="is_public" <%= note.is_public ? 'checked' : '' %> style="width: auto;">
+                    <label for="is_public" style="margin: 0;">다른 학생과 공유하기</label>
+                </div>
+
+                <div class="btn-group" style="justify-content: flex-start; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary">수정 완료</button>
+                    <a href="/post/<%= note.id %>" class="btn btn-secondary">취소</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

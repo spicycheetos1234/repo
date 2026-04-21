@@ -38,14 +38,22 @@
             <div class="notes-list">
                 <% if (notes && notes.length > 0) { %>
                     <% notes.forEach(note => { %>
-                        <a href="/post/<%= note.id %>" class="card">
-                            <span class="tag"><%= note.type_name || '기타' %></span>
-                            <h3><%= note.title %></h3>
-                            <p><%= note.solution.substring(0, 100) %>...</p>
-                            <div style="margin-top: 15px; font-size: 0.8rem; color: #999;">
-                                등록일: <%= new Date(note.created_at).toLocaleDateString() %>
+                        <div class="card" style="position: relative;">
+                            <a href="/post/<%= note.id %>" style="text-decoration: none; color: inherit; display: block;">
+                                <span class="tag"><%= note.type_name || '기타' %></span>
+                                <h3><%= note.title %></h3>
+                                <p><%= note.solution.substring(0, 100) %>...</p>
+                                <div style="margin-top: 15px; font-size: 0.8rem; color: #999;">
+                                    등록일: <%= new Date(note.created_at).toLocaleDateString() %>
+                                </div>
+                            </a>
+                            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; display: flex; gap: 10px;">
+                                <a href="/post/<%= note.id %>/edit" class="btn" style="background: #ffa502; font-size: 0.8rem; padding: 5px 10px;">수정</a>
+                                <form action="/post/<%= note.id %>/delete" method="POST" onsubmit="return confirm('정말로 삭제하시겠습니까?');" style="display: inline;">
+                                    <button type="submit" class="btn" style="background: #ff4757; font-size: 0.8rem; padding: 5px 10px;">삭제</button>
+                                </form>
                             </div>
-                        </a>
+                        </div>
                     <% }); %>
                 <% } else { %>
                     <div class="card" style="text-align: center; padding: 40px; border-style: dashed;">
