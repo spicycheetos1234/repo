@@ -34,6 +34,29 @@
             </div>
         </div>
 
+        <!-- 복습 예정 섹션 -->
+        <section style="margin-bottom: 60px;">
+            <h2 style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px; color: #ff4757;">🔥 오늘 복습할 문제</h2>
+            <% if (upcomingReviews && upcomingReviews.length > 0) { %>
+                <div class="notes-list">
+                    <% upcomingReviews.forEach(review => { %>
+                        <div class="card" style="border-left: 5px solid #ff4757;">
+                            <a href="/post/<%= review.wrong_note_id %>" style="text-decoration: none; color: inherit; display: block;">
+                                <h3><%= review.title %></h3>
+                                <p style="color: #ff4757; font-weight: bold; font-size: 0.9rem;">
+                                    복습 예정일: <%= new Date(review.next_review_date).toLocaleDateString() %>
+                                </p>
+                            </a>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="card" style="text-align: center; padding: 20px; color: #999; border-style: dashed;">
+                    오늘 복습할 항목이 없습니다. 완벽합니다!
+                </div>
+            <% } %>
+        </section>
+
         <section>
             <h2 style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px;">내가 작성한 글</h2>
             <div class="notes-list">

@@ -171,6 +171,13 @@ app.post('/write', async (req, res) => {
                 [noteId, reason_id]
             );
         }
+
+        // 복습 일정 자동 생성 (작성일 기준 7일 후)
+        await db.query(
+            'INSERT INTO ReviewSchedule (user_id, wrong_note_id, next_review_date) VALUES ($1, $2, CURRENT_DATE + INTERVAL \'7 days\')',
+            [userId, noteId]
+        );
+
         res.redirect('/board');
     } catch (err) {
         console.error(err);
@@ -430,7 +437,22 @@ app.get('/profile', async (req, res) => {
             ORDER BY wn.created_at DESC
         `;
         const result = await db.query(queryText, [userId]);
-        res.render('profile', { title: '내 오답 아카이브', notes: result.rows });
+
+        // 복습 예정 목록 가져오기 (오늘까지의 미완료 일정)
+        const reviewQuery = `
+            SELECT rs.*, wn.title 
+            FROM ReviewSchedule rs
+            JOIN WrongNote wn ON rs.wrong_note_id = wn.id
+            WHERE rs.user_id = $1 AND rs.status = 'pending' AND rs.next_review_date <= CURRENT_DATE
+            ORDER BY rs.next_review_date ASC
+        `;
+        const reviewResult = await db.query(reviewQuery, [userId]);
+
+        res.render('profile', { 
+            title: '내 오답 아카이브', 
+            notes: result.rows,
+            upcomingReviews: reviewResult.rows 
+        });
     } catch (err) {
         console.error(err);
         res.send('데이터를 불러오는 중 오류가 발생했습니다.');
