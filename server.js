@@ -650,6 +650,24 @@ app.post('/questions/:id/answer', async (req, res) => {
     }
 });
 
+// 복습 완료 처리
+app.post('/review/:id/complete', async (req, res) => {
+    if (!req.session.user) return res.status(401).send('로그인이 필요합니다.');
+    const reviewId = req.params.id;
+    const userId = req.session.user.id;
+
+    try {
+        await db.query(
+            "UPDATE ReviewSchedule SET status = 'completed' WHERE id = $1 AND user_id = $2",
+            [reviewId, userId]
+        );
+        res.redirect('/profile');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('복습 완료 처리 중 오류가 발생했습니다.');
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });

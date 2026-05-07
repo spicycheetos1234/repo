@@ -40,13 +40,16 @@
             <% if (upcomingReviews && upcomingReviews.length > 0) { %>
                 <div class="notes-list">
                     <% upcomingReviews.forEach(review => { %>
-                        <div class="card" style="border-left: 5px solid #ff4757;">
-                            <a href="/post/<%= review.wrong_note_id %>" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="card" style="border-left: 5px solid #ff4757; display: flex; justify-content: space-between; align-items: center;">
+                            <a href="/post/<%= review.wrong_note_id %>" style="text-decoration: none; color: inherit; flex-grow: 1;">
                                 <h3><%= review.title %></h3>
                                 <p style="color: #ff4757; font-weight: bold; font-size: 0.9rem;">
                                     복습 예정일: <%= new Date(review.next_review_date).toLocaleDateString() %>
                                 </p>
                             </a>
+                            <form action="/review/<%= review.id %>/complete" method="POST">
+                                <button type="submit" class="btn" style="background: #2ed573; color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer;">복습 완료</button>
+                            </form>
                         </div>
                     <% }); %>
                 </div>
