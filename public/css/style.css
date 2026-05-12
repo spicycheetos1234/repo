@@ -145,8 +145,12 @@ input:focus, select:focus, textarea:focus {
 }
 
 .btn {
-    display: inline-block;
-    padding: 16px 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 32px; /* 수직 패딩을 0으로 하고 height로 높이를 제어합니다 */
+    height: 56px;
+    min-height: 56px;
     border-radius: 16px;
     font-weight: 600;
     text-decoration: none;
@@ -155,6 +159,12 @@ input:focus, select:focus, textarea:focus {
     font-size: 1rem;
     border: none;
     transition: all 0.2s;
+    box-sizing: border-box;
+    line-height: 1;
+    vertical-align: middle;
+    margin: 0;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .btn-primary {
@@ -174,6 +184,24 @@ input:focus, select:focus, textarea:focus {
 
 .btn-secondary:hover {
     background: #f1f1f1;
+}
+
+.btn-danger {
+    background: #ff4757;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #ff6b81;
+}
+
+.btn-warning {
+    background: #ffa502;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #ffaf40;
 }
 
 /* Stats */
